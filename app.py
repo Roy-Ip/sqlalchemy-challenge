@@ -1,13 +1,14 @@
 # Import the dependencies.
-import numpy as np
+from datetime import datetime, date
 
+import numpy as np
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, desc
 from flask import Flask, jsonify
 import datetime as dt
-from datetime import datetime, date
+
 
 
 
@@ -51,9 +52,11 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/temp/yyyy-mm-dd (start date only between 2010-01-01 and 2017-08-23)<br/>"
-        f"/api/v1.0/temp/yyyy-mm-dd/yyyy-mm-dd (start date and end date between 2010-01-01 and 2017-08-23)"
+        f"/api/v1.0/temperatures/yyyy-mm-dd (start date only between 2010-01-01 and 2017-08-23)<br/>"
+        f"/api/v1.0/temperatures/yyyy-mm-dd/yyyy-mm-dd (start date and end date between 2010-01-01 and 2017-08-23)"
     )
+
+
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
@@ -132,8 +135,7 @@ def tobs():
    
 
 
-
-@app.route("/api/v1.0/temp/<start>")
+@app.route("/api/v1.0/temperatures/<start>")
 def temperature_stats_start(start):
     try:
         start_date = datetime.strptime(start, '%Y-%m-%d').date()
@@ -149,26 +151,24 @@ def temperature_stats_start(start):
 
     session = Session(engine)
 
-    temperature_stats = session.query(func.min(Measurement.tobs).label("min_temp"),
-                                      func.max(Measurement.tobs).label("max_temp"),
-                                      func.avg(Measurement.tobs).label("avg_temp")).\
+    temperature_stats = session.query(func.min(Measurement.tobs).label("TMIN"),
+                                      func.max(Measurement.tobs).label("TMAX"),
+                                      func.avg(Measurement.tobs).label("TAVG")).\
                                       filter(Measurement.date >= start_date).all()
 
     session.close()
 
     if temperature_stats:
         temperature_stats_dict = {
-            "min_temp": temperature_stats[0].min_temp,
-            "max_temp": temperature_stats[0].max_temp,
-            "avg_temp": temperature_stats[0].avg_temp,
+            "TMIN": temperature_stats[0].TMIN,
+            "TMAX": temperature_stats[0].TMAX,
+            "TAVG": temperature_stats[0].TAVG,
         }
         return jsonify(temperature_stats_dict)
 
 
 
-
-
-@app.route("/api/v1.0/temp/<start>/<end>")
+@app.route("/api/v1.0/temperatures/<start>/<end>")
 def temperature_stats_start_end(start, end):
     try:
         start_date = datetime.strptime(start, '%Y-%m-%d').date()
@@ -187,9 +187,9 @@ def temperature_stats_start_end(start, end):
 
     session = Session(engine)
 
-    temperature_stats = session.query(func.min(Measurement.tobs).label("min_temp"),
-                                      func.max(Measurement.tobs).label("max_temp"),
-                                      func.avg(Measurement.tobs).label("avg_temp")).\
+    temperature_stats = session.query(func.min(Measurement.tobs).label("TMIN"),
+                                      func.max(Measurement.tobs).label("TMAX"),
+                                      func.avg(Measurement.tobs).label("TAVG")).\
                                       filter(Measurement.date >= start_date).\
                                       filter(Measurement.date <= end_date).all()
 
@@ -197,14 +197,12 @@ def temperature_stats_start_end(start, end):
 
     if temperature_stats:
         temperature_stats_dict = {
-            "min_temp": temperature_stats[0].min_temp,
-            "max_temp": temperature_stats[0].max_temp,
-            "avg_temp": temperature_stats[0].avg_temp,
+            "TMIN": temperature_stats[0].TMIN,
+            "TMAX": temperature_stats[0].TMAX,
+            "TAVG": temperature_stats[0].TAVG,
         }
         return jsonify(temperature_stats_dict)
  
-
-
 
 
 if __name__ == '__main__':
