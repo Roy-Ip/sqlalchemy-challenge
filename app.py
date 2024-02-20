@@ -112,26 +112,25 @@ def tobs():
         filter(Measurement.station == most_active_station_id).\
         order_by(desc(Measurement.date)).first()
 
-    if most_recent_date:
-        most_recent_date = dt.datetime.strptime(most_recent_date[0], '%Y-%m-%d').date()
+    most_recent_date = dt.datetime.strptime(most_recent_date[0], '%Y-%m-%d').date()
 
-        twelve_month_ago = most_recent_date - dt.timedelta(days=365)
+    twelve_month_ago = most_recent_date - dt.timedelta(days=365)
 
-        temperature_observation = session.query(Measurement.date, Measurement.tobs).\
+    temperature_observation = session.query(Measurement.date, Measurement.tobs).\
             filter(Measurement.station == most_active_station_id).\
             filter(Measurement.date >= twelve_month_ago).all()
 
-        tobs_list = []
-        for result in temperature_observation:
-            tobs_dict = {
+    tobs_list = []
+    for result in temperature_observation:
+        tobs_dict = {
                 "date": result.date,
                 "tobs": result.tobs,
             }
-            tobs_list.append(tobs_dict)
+        tobs_list.append(tobs_dict)
 
-        session.close()
+    session.close()
 
-        return jsonify(tobs_list)
+    return jsonify(tobs_list)
    
 
 
