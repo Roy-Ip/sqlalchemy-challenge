@@ -155,15 +155,19 @@ def temperature_stats_start(start):
                                       func.avg(Measurement.tobs).label("TAVG")).\
                                       filter(Measurement.date >= start_date).all()
 
+    temperature_stats_list = []
+
+    for result in temperature_stats:
+        temperature_stats_dict = {
+            "TMIN": result.TMIN,
+            "TMAX": result.TMAX,
+            "TAVG": result.TAVG,
+        }
+        temperature_stats_list.append(temperature_stats_dict)
+
     session.close()
 
-    if temperature_stats:
-        temperature_stats_dict = {
-            "TMIN": temperature_stats[0].TMIN,
-            "TMAX": temperature_stats[0].TMAX,
-            "TAVG": temperature_stats[0].TAVG,
-        }
-        return jsonify(temperature_stats_dict)
+    return jsonify(temperature_stats_list)
 
 
 
@@ -191,17 +195,21 @@ def temperature_stats_start_end(start, end):
                                       func.avg(Measurement.tobs).label("TAVG")).\
                                       filter(Measurement.date >= start_date).\
                                       filter(Measurement.date <= end_date).all()
+    
+    temperature_stats_list = []
 
+    for result in temperature_stats:
+        temperature_stats_dict = {
+            "TMIN": result.TMIN,
+            "TMAX": result.TMAX,
+            "TAVG": result.TAVG,
+        }
+        temperature_stats_list.append(temperature_stats_dict)
+        
     session.close()
 
-    if temperature_stats:
-        temperature_stats_dict = {
-            "TMIN": temperature_stats[0].TMIN,
-            "TMAX": temperature_stats[0].TMAX,
-            "TAVG": temperature_stats[0].TAVG,
-        }
-        return jsonify(temperature_stats_dict)
- 
+    return jsonify(temperature_stats_list)
+
 
 
 if __name__ == '__main__':
