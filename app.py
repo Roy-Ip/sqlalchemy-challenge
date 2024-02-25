@@ -106,7 +106,9 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def tobs():
-    most_active_station_id = 'USC00519281'
+    most_active_station = session.query(Measurement.station).group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).first()
+    
+    most_active_station_id = most_active_station[0]
 
     most_recent_date = session.query(Measurement.date).\
         filter(Measurement.station == most_active_station_id).\
